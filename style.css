@@ -9,6 +9,7 @@
     --dark-blue: #1e3a59;
     --light-blue: #4a90e2;
     --text-blue: #4a90e2;
+    --highlight-bg: #f6f8fc;
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --text-dark: #333333;
@@ -232,36 +233,41 @@ body {
     position: absolute;
     width: 100%;
     padding: 0;
-    will-change: transform;
+    will-change: transform, top;
+    transition: top 1s ease;
 }
 
-/* Individual paragraph styling - smaller margins */
+/* Individual paragraph styling */
 #paragraphContainer p {
-    margin-bottom: 8px; /* Reduced margin between paragraphs */
-    line-height: 1.9;
+    margin-bottom: 8px;
+    line-height: 1.8;
     font-size: 16px;
     text-align: justify;
-    color: var(--text-medium);
-    transition: background-color 0.3s ease;
-    padding: 8px 0;
+    color: var(--text-dark);
+    padding: 10px 0;
+    transition: all 0.4s ease;
+    position: relative;
+    letter-spacing: 0.02em;
+    word-spacing: 0.05em;
 }
 
 #paragraphContainer p:first-child {
     font-weight: 500;
-    color: var(--text-dark);
 }
 
-/* Highlighted paragraph styling */
+/* Highlight styling based on the quoted reference image - without quote symbols */
 #paragraphContainer p.highlight {
-    background-color: rgba(74, 144, 226, 0.08);
-    border-left: 4px solid var(--light-blue);
-    padding: 15px 15px 15px 20px;
-    margin-left: -24px;
-    margin-right: -15px;
+    background-color: var(--highlight-bg);
+    padding: 24px 32px 24px 28px;
+    margin: 10px 0;
     color: var(--text-dark);
-    font-weight: 500;
     border-radius: 0 4px 4px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+    line-height: 1.8;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+    word-spacing: 0.08em;
+    border-left: 5px solid var(--light-blue);
 }
 
 /* Thank You Message Styles */

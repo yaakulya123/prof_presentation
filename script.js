@@ -7,55 +7,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.querySelector('.container');
     const contentBox = document.querySelector('.content-box');
     
-    // Speech synthesis setup
-    const synth = window.speechSynthesis;
-    let voices = [];
+    // Audio setup
+    const audioElement = new Audio('Voice.mp3');
     let activeIndex = -1;
-    let isReading = false;
-    let scrollTimer;
+    let animationFrame;
     
-    // Function to get available voices and select a good female voice
-    function loadVoices() {
-        voices = synth.getVoices();
-        const preferredVoices = ['Samantha', 'Karen', 'Moira', 'Tessa', 'Victoria', 'Ava'];
-        
-        for (const preferred of preferredVoices) {
-            const voice = voices.find(v => v.name.includes(preferred));
-            if (voice) return voice;
-        }
-        
-        let femaleVoice = voices.find(voice => voice.name.toLowerCase().includes('female'));
-        if (!femaleVoice && voices.length > 0) {
-            femaleVoice = voices[0];
-        }
-        
-        return femaleVoice;
-    }
+    // Approximate paragraph durations in seconds (adjust these to match your audio)
+    const paragraphDurations = [
+        20, // First paragraph duration - done
+        28, // Second paragraph duration - done
+        24, // Third paragraph duration - done
+        19,  // Fourth paragraph duration - done
+        19, // Fifth paragraph duration - done
+        17,  // Sixth paragraph duration - 
+        15   // Seventh paragraph duration
+    ];
     
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    // Total duration for thank you message
+    const thankYouDuration = 5; // seconds
     
-    function setupSpeech(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9; // Slightly slower rate
-        utterance.pitch = 1.03;
-        utterance.volume = 1.0;
-        
-        const femaleVoice = loadVoices();
-        if (femaleVoice) {
-            utterance.voice = femaleVoice;
-        }
-        
-        return utterance;
-    }
-
     // Initialize presentation by positioning text and preparing for reading
     function initializePresentation() {
         // Reset all paragraphs
         paragraphs.forEach((paragraph, index) => {
             paragraph.dataset.index = index;
             paragraph.classList.remove('highlight');
+            paragraph.style.transform = 'none';
         });
         
         // Hide the content initially
@@ -68,9 +45,49 @@ document.addEventListener('DOMContentLoaded', function() {
             paragraphContainer.style.top = contentBox.offsetHeight + 'px';
             paragraphContainer.style.opacity = '1';
             
-            // Start with the first paragraph
+            // Start with the first paragraph and play audio
+            audioElement.currentTime = 0;
+            audioElement.play();
             readNextParagraph(0);
         }, 500);
+    }
+    
+    // Gentle floating animation for the active paragraph
+    function animateParagraph(paragraph) {
+        let startTime = null;
+        const duration = 3000; // 3 seconds per cycle
+        const maxOffset = 3; // Maximum pixel movement
+        
+        // Cancel any existing animation
+        if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+        }
+        
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            
+            // Calculate sine wave position (0 to 1 to 0)
+            const progress = (elapsed % duration) / duration;
+            const offset = Math.sin(progress * Math.PI * 2) * maxOffset;
+            
+            // Apply the floating effect
+            paragraph.style.transform = `translateY(${offset}px)`;
+            
+            // Continue animation
+            animationFrame = requestAnimationFrame(animate);
+        }
+        
+        // Start the animation
+        animationFrame = requestAnimationFrame(animate);
+        
+        // Return function to stop animation
+        return function stopAnimation() {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                paragraph.style.transform = 'none';
+            }
+        };
     }
     
     // Read each paragraph one by one, with smooth scrolling
@@ -80,12 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Stop any previous speech
-        synth.cancel();
-        
-        // Remove highlight from previous paragraph
+        // Remove highlight from previous paragraph and reset its position
         if (activeIndex >= 0) {
             paragraphs[activeIndex].classList.remove('highlight');
+            paragraphs[activeIndex].style.transform = 'none';
         }
         
         // Set new active paragraph
@@ -115,46 +130,39 @@ document.addEventListener('DOMContentLoaded', function() {
             // Calculate easing (ease-out)
             const easeProgress = 1 - Math.pow(1 - progress, 2);
             
-            // Apply the scroll position
-            paragraphContainer.style.top = (startPosition + distance * easeProgress) + 'px';
+            // Apply the scroll position with small vertical motion
+            const newPos = startPosition + distance * easeProgress;
+            paragraphContainer.style.top = newPos + 'px';
             
             // Continue animation if not complete
             if (progress < 1) {
                 window.requestAnimationFrame(animateScroll);
             } else {
-                // Start reading after scrolling completes
-                readParagraph(currentParagraph);
+                // Start the floating animation
+                const stopFloating = animateParagraph(currentParagraph);
+                
+                // Wait for paragraph duration then move to next
+                setTimeout(() => {
+                    // Stop the floating animation
+                    if (stopFloating) stopFloating();
+                    
+                    // Wait a moment before moving to next paragraph
+                    setTimeout(() => {
+                        readNextParagraph(activeIndex + 1);
+                    }, 500);
+                }, paragraphDurations[index] * 1000);
             }
         }
         
         window.requestAnimationFrame(animateScroll);
     }
     
-    // Read the paragraph and wait until finished before moving to next
-    function readParagraph(paragraph) {
-        const utterance = setupSpeech(paragraph.textContent);
-        
-        // When finished reading this paragraph
-        utterance.onend = function() {
-            // Wait a moment before moving to next paragraph
-            setTimeout(() => {
-                readNextParagraph(activeIndex + 1);
-            }, 500);
-        };
-        
-        // Error handling
-        utterance.onerror = function(event) {
-            console.error('Speech synthesis error:', event);
-            readNextParagraph(activeIndex + 1);
-        };
-        
-        synth.speak(utterance);
-    }
-    
     // End the presentation
     function endPresentation() {
-        // Stop any ongoing speech
-        synth.cancel();
+        // Cancel any animation
+        if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+        }
         
         // Fade out the paragraph container
         paragraphContainer.style.transition = 'opacity 1s ease';
@@ -164,20 +172,26 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             thankYou.classList.add('show-thank-you');
             
-            // Speak the thank you message
-            const thankYouText = "Thank you for your distinguished service to legal education.";
-            const thankYouUtterance = setupSpeech(thankYouText);
-            synth.speak(thankYouUtterance);
-            
-            // Add click event to restart the presentation
-            container.addEventListener('click', resetPresentation);
+            // Stop audio after thank you duration
+            setTimeout(() => {
+                audioElement.pause();
+                
+                // Add click event to restart the presentation
+                container.addEventListener('click', resetPresentation);
+            }, thankYouDuration * 1000);
         }, 1000);
     }
     
     // Reset and restart the presentation
     function resetPresentation() {
-        // Stop any ongoing speech
-        synth.cancel();
+        // Reset audio
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        
+        // Cancel any animation
+        if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+        }
         
         // Hide thank you message
         thankYou.classList.remove('show-thank-you');
@@ -185,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset paragraph styling
         paragraphs.forEach(paragraph => {
             paragraph.classList.remove('highlight');
+            paragraph.style.transform = 'none';
         });
         
         // Reset states
@@ -203,6 +218,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove the click listener to prevent multiple resets
         container.removeEventListener('click', resetPresentation);
     }
+    
+    // Handle audio errors
+    audioElement.onerror = function(event) {
+        console.error('Audio playback error:', event);
+    };
     
     // Start the presentation
     initializePresentation();

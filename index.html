@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Uncomment the following line if you need Chrome-specific fixes -->
+    <!-- <link rel="stylesheet" href="chrome-fix.css"> -->
 </head>
 <body>
     <div class="container">
@@ -19,13 +21,15 @@
             <div class="info-panel">
                 <h2 class="prof-name">Prof. (Dr.) V. BALAKISTA REDDY</h2>
                 <p class="main-title">Chairman, Telangana Council of Higher Education</p>
-                <p class="designation">Professor of International Law</p>
-                <p class="designation">Former Vice-Chancellor & Registrar, NALSAR University of Law</p>
-                <p class="designation">Former Dean, School of Law, Mahindra University</p>
-                <p class="designation">Course Coordinator, LL.M. (ITBL)</p>
-                <p class="designation">Director, Centre for Aerospace and Defence Law (CADL)</p>
-                <p class="designation">Director, Centre for Tribal and Land Rights (CTLR)</p>
-                <p class="designation">Coordinator, M.K.Nambyar SAARC Law Centre</p>
+                <div class="designations-wrapper">
+                    <p class="designation">Professor of International Law</p>
+                    <p class="designation">Former Vice-Chancellor & Registrar, NALSAR University of Law</p>
+                    <p class="designation">Former Dean, School of Law, Mahindra University</p>
+                    <p class="designation">Course Coordinator, LL.M. (ITBL)</p>
+                    <p class="designation">Director, Centre for Aerospace and Defence Law (CADL)</p>
+                    <p class="designation">Director, Centre for Tribal and Land Rights (CTLR)</p>
+                    <p class="designation">Coordinator, M.K.Nambyar SAARC Law Centre</p>
+                </div>
             </div>
         </div>
         
@@ -67,7 +71,7 @@
                         
                         <p>Internationally, he has served as a visiting faculty at esteemed universities across the USA, Canada, Europe, and South Asia, and has published extensively in both national and international journals, along with several authoritative books on Air and Space Law.</p>
                         
-                        <p>As a dedicated mentor, he has guided over 20 Ph.D. scholars and inspired countless students through his courses in International Law.  Dr. Reddy's dedication and administrative acumen have greatly contributed to strengthening legal education and social justice in India.</p>
+                        <p>As a dedicated mentor, he has guided over 20 Ph.D. scholars and inspired countless students through his courses in International Law. Dr. Reddy's dedication and administrative acumen have greatly contributed to strengthening legal education and social justice in India.</p>
                     </div>
                 </div>
                 
@@ -80,6 +84,9 @@
             </div>
         </div>
     </div>
+    
+    <!-- Add a start button for audio playback permissions -->
+    <button id="startPresentation" class="start-btn">Start Presentation</button>
     
     <script src="script.js"></script>
 </body>

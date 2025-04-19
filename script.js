@@ -6,9 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const thankYou = document.getElementById('thankYou');
     const container = document.querySelector('.container');
     const contentBox = document.querySelector('.content-box');
+    const startButton = document.getElementById('startPresentation');
     
     // Audio setup
     const audioElement = new Audio('Voice.mp3');
+    audioElement.preload = 'auto'; // Preload audio
+    let audioContext; // For Chrome audio unlock
+    let audioLoaded = false;
     let activeIndex = -1;
     let animationFrame;
     
@@ -17,14 +21,55 @@ document.addEventListener('DOMContentLoaded', function() {
         20, // First paragraph duration - done
         28, // Second paragraph duration - done
         24, // Third paragraph duration - done
-        19,  // Fourth paragraph duration - done
+        19, // Fourth paragraph duration - done
         19, // Fifth paragraph duration - done
-        17,  // Sixth paragraph duration - 
-        15   // Seventh paragraph duration
+        17, // Sixth paragraph duration - 
+        15  // Seventh paragraph duration
     ];
     
     // Total duration for thank you message
     const thankYouDuration = 5; // seconds
+    
+    // Flag to track if presentation is running
+    let presentationRunning = false;
+    
+    // Browser detection
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    // Function to initialize AudioContext (needed for Chrome)
+    function initAudioContext() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+    }
+    
+    // Function to load audio
+    function loadAudio() {
+        return new Promise((resolve, reject) => {
+            if (audioLoaded) {
+                resolve();
+                return;
+            }
+            
+            audioElement.addEventListener('canplaythrough', function onCanPlay() {
+                audioLoaded = true;
+                audioElement.removeEventListener('canplaythrough', onCanPlay);
+                resolve();
+            });
+            
+            audioElement.addEventListener('error', function(e) {
+                console.error('Audio error:', e);
+                reject(new Error('Failed to load audio'));
+            });
+            
+            // Force reload the audio
+            audioElement.load();
+        });
+    }
     
     // Initialize presentation by positioning text and preparing for reading
     function initializePresentation() {
@@ -45,11 +90,47 @@ document.addEventListener('DOMContentLoaded', function() {
             paragraphContainer.style.top = contentBox.offsetHeight + 'px';
             paragraphContainer.style.opacity = '1';
             
-            // Start with the first paragraph and play audio
-            audioElement.currentTime = 0;
-            audioElement.play();
-            readNextParagraph(0);
+            // Start audio and first paragraph
+            playAudioWithUnlock()
+                .then(() => readNextParagraph(0))
+                .catch(err => {
+                    console.error('Error starting presentation:', err);
+                    // If audio fails, continue anyway without audio
+                    readNextParagraph(0);
+                });
         }, 500);
+    }
+    
+    // Function to play audio with unlock for Chrome
+    function playAudioWithUnlock() {
+        return new Promise((resolve, reject) => {
+            // For Chrome's autoplay policy
+            if (isChrome || isSafari) {
+                initAudioContext();
+            }
+            
+            // Reset audio position
+            audioElement.currentTime = 0;
+            
+            // Play audio with error handling
+            const playPromise = audioElement.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        // Audio started successfully
+                        resolve();
+                    })
+                    .catch(err => {
+                        console.warn('Autoplay prevented. Will continue without audio:', err);
+                        // Continue without audio
+                        resolve();
+                    });
+            } else {
+                // Old browsers don't return a promise
+                resolve();
+            }
+        });
     }
     
     // Gentle floating animation for the active paragraph
@@ -136,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Continue animation if not complete
             if (progress < 1) {
-                window.requestAnimationFrame(animateScroll);
+                requestAnimationFrame(animateScroll);
             } else {
                 // Start the floating animation
                 const stopFloating = animateParagraph(currentParagraph);
@@ -154,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        window.requestAnimationFrame(animateScroll);
+        requestAnimationFrame(animateScroll);
     }
     
     // End the presentation
@@ -172,9 +253,13 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             thankYou.classList.add('show-thank-you');
             
-            // Stop audio after thank you duration
+            // Show start button again after thank you duration
             setTimeout(() => {
                 audioElement.pause();
+                presentationRunning = false;
+                
+                // Show the start button again
+                startButton.classList.remove('hidden');
                 
                 // Add click event to restart the presentation
                 container.addEventListener('click', resetPresentation);
@@ -184,6 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Reset and restart the presentation
     function resetPresentation() {
+        // If already running, don't start again
+        if (presentationRunning) return;
+        
         // Reset audio
         audioElement.pause();
         audioElement.currentTime = 0;
@@ -219,11 +307,30 @@ document.addEventListener('DOMContentLoaded', function() {
         container.removeEventListener('click', resetPresentation);
     }
     
+    // Start presentation on button click (needed for audio in Chrome)
+    startButton.addEventListener('click', function() {
+        if (presentationRunning) return;
+        
+        presentationRunning = true;
+        startButton.classList.add('hidden');
+        
+        // Preload the audio
+        loadAudio()
+            .then(() => {
+                // Start the presentation
+                initializePresentation();
+            })
+            .catch(err => {
+                console.error('Failed to load audio:', err);
+                // Start without audio
+                initializePresentation();
+            });
+    });
+    
     // Handle audio errors
     audioElement.onerror = function(event) {
         console.error('Audio playback error:', event);
     };
     
-    // Start the presentation
-    initializePresentation();
+    // Don't auto-start, wait for button click
 });

@@ -28,6 +28,7 @@ body {
     justify-content: center;
     align-items: center;
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ef 100%);
+    position: relative;
 }
 
 .container {
@@ -43,6 +44,35 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* Start button styles */
+.start-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--light-blue);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.start-btn:hover {
+    background-color: var(--dark-blue);
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.start-btn.hidden {
+    display: none;
+}
+
 /* Left Panel Styles */
 .left-panel {
     width: 40%;
@@ -51,23 +81,26 @@ body {
     background: linear-gradient(135deg, #1e3a59 0%, #172b43 100%);
     color: var(--white);
     position: relative;
-    justify-content: center;
-    padding: 30px 0;
+    padding: 15px 0;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
 }
 
 .image-container {
-    width: 85%;
-    margin: 0 auto 25px;
+    width: 70%;
+    margin: 0 auto 15px;
     overflow: hidden;
     position: relative;
     border: 4px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border-radius: 4px;
-    aspect-ratio: 1 / 1.2;
+    padding-top: 75%;
 }
 
 .professor-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -76,17 +109,18 @@ body {
 
 .info-panel {
     background-color: transparent;
-    padding: 15px 35px 0;
+    padding: 10px 20px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: auto;
 }
 
 .prof-name {
-    font-size: 22px;
+    font-size: 20px; /* Increased from 18px */
     font-weight: 600;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
     text-align: center;
     color: var(--white);
     text-transform: uppercase;
@@ -94,20 +128,30 @@ body {
 }
 
 .main-title {
-    font-size: 16px;
+    font-size: 16px; /* Increased from 14px */
     color: var(--text-blue);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     text-align: center;
     font-weight: 500;
 }
 
+
+.designations-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .designation {
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 6px;
-    font-weight: 300;
+    font-size: 16px; /* Increased from 12px */
+    line-height: 1.5; /* Increased from 1.4 */
+    margin-bottom: 5px; /* Increased from 4px */
+    font-weight: 400; /* Increased from 300 */
     color: var(--text-light);
     text-align: center;
+    width: 100%;
+    word-wrap: break-word;
 }
 
 /* Right Panel Styles */
@@ -120,7 +164,7 @@ body {
 }
 
 .header-container {
-    padding: 40px 60px 25px;
+    padding: 30px 50px 20px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     background-color: var(--white);
     position: relative;
@@ -130,7 +174,7 @@ body {
 .header {
     color: var(--text-dark);
     margin-bottom: 5px;
-    font-size: 38px;
+    font-size: 34px;
     font-weight: 600;
     letter-spacing: 0.5px;
 }
@@ -138,13 +182,13 @@ body {
 .subheader {
     color: var(--text-blue);
     font-weight: 400;
-    margin-bottom: 25px;
-    font-size: 20px;
+    margin-bottom: 20px;
+    font-size: 18px;
     letter-spacing: 0.3px;
 }
 
 .credentials-container {
-    margin-top: 30px;
+    margin-top: 25px;
     position: relative;
 }
 
@@ -233,7 +277,6 @@ body {
     position: absolute;
     width: 100%;
     padding: 0;
-    will-change: transform, top;
     transition: top 1s ease;
 }
 
@@ -255,7 +298,7 @@ body {
     font-weight: 500;
 }
 
-/* Highlight styling based on the quoted reference image - without quote symbols */
+/* Highlight styling */
 #paragraphContainer p.highlight {
     background-color: var(--highlight-bg);
     padding: 24px 32px 24px 28px;
@@ -308,22 +351,48 @@ body {
 
 .show-thank-you {
     display: block;
-    animation: fadeIn 2s ease-in-out forwards;
+    -webkit-animation: fadeIn 2s ease-in-out forwards;
+            animation: fadeIn 2s ease-in-out forwards;
+}
+
+@-webkit-keyframes fadeIn {
+    0% {
+        opacity: 0;
+        -webkit-transform: translate(-50%, -50%) scale(0.9);
+                transform: translate(-50%, -50%) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        -webkit-transform: translate(-50%, -50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
+    }
 }
 
 @keyframes fadeIn {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.9);
+        -webkit-transform: translate(-50%, -50%) scale(0.9);
+                transform: translate(-50%, -50%) scale(0.9);
     }
     100% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        -webkit-transform: translate(-50%, -50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
     }
 }
 
 .show-thank-you h2 {
-    animation: pulse 2s infinite alternate;
+    -webkit-animation: pulse 2s infinite alternate;
+            animation: pulse 2s infinite alternate;
+}
+
+@-webkit-keyframes pulse {
+    0% {
+        text-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+    }
+    100% {
+        text-shadow: 0 0 15px rgba(74, 144, 226, 0.7);
+    }
 }
 
 @keyframes pulse {
@@ -348,18 +417,23 @@ body {
     }
     
     .left-panel {
-        height: 50%;
-        padding: 20px 0;
+        min-height: 40%;
+        max-height: 40%;
+        padding: 15px 0;
     }
     
     .image-container {
-        width: 70%;
-        max-width: 300px;
-        aspect-ratio: 1 / 1;
+        width: 150px;
+        height: 150px;
+        padding-top: 0;
+        margin-bottom: 10px;
     }
     
-    .info-panel {
-        padding: 15px;
+    .professor-image {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
     
     .header-container {
@@ -367,11 +441,12 @@ body {
     }
     
     .header {
-        font-size: 28px;
+        font-size: 24px;
     }
     
     .subheader {
         font-size: 16px;
+        margin-bottom: 15px;
     }
     
     .content-box {
@@ -379,19 +454,25 @@ body {
     }
     
     .thank-you h2 {
-        font-size: 42px;
+        font-size: 36px;
     }
     
     .credentials {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+        align-items: flex-start;
     }
     
     .credential {
-        padding: 8px 0;
+        padding: 5px 0;
     }
     
     .credential:not(:last-child)::after {
         display: none;
+    }
+    
+    #paragraphContainer p {
+        font-size: 14px;
+        line-height: 1.6;
     }
 }

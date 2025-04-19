@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const contentBox = document.querySelector('.content-box');
     const startButton = document.getElementById('startPresentation');
     
-    // Audio setup
-    const audioElement = new Audio('Voice.mp3');
+    // Audio setup - FIXED FILE NAME TO MATCH GITHUB REPOSITORY (lowercase v)
+    const audioElement = new Audio('voice.mp3');
     audioElement.preload = 'auto'; // Preload audio
     let audioContext; // For Chrome audio unlock
     let audioLoaded = false;
@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     
+    // Log audio file info
+    console.log('Audio file path:', audioElement.src);
+    
     // Function to initialize AudioContext (needed for Chrome)
     function initAudioContext() {
         if (!audioContext) {
@@ -55,7 +58,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            console.log('Attempting to load audio file...');
+            
+            // Make sure audio file is loaded
             audioElement.addEventListener('canplaythrough', function onCanPlay() {
+                console.log('Audio loaded successfully!');
                 audioLoaded = true;
                 audioElement.removeEventListener('canplaythrough', onCanPlay);
                 resolve();
@@ -63,6 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             audioElement.addEventListener('error', function(e) {
                 console.error('Audio error:', e);
+                console.error('Audio error code:', audioElement.error.code);
+                console.error('Audio error message:', audioElement.error.message);
+                console.error('Audio src:', audioElement.src);
                 reject(new Error('Failed to load audio'));
             });
             
@@ -112,6 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Reset audio position
             audioElement.currentTime = 0;
             
+            console.log('Attempting to play audio...');
+            
             // Play audio with error handling
             const playPromise = audioElement.play();
             
@@ -119,10 +131,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 playPromise
                     .then(() => {
                         // Audio started successfully
+                        console.log('Audio playing successfully!');
                         resolve();
                     })
                     .catch(err => {
-                        console.warn('Autoplay prevented. Will continue without audio:', err);
+                        console.warn('Autoplay prevented or audio error:', err);
                         // Continue without audio
                         resolve();
                     });
@@ -314,6 +327,9 @@ document.addEventListener('DOMContentLoaded', function() {
         presentationRunning = true;
         startButton.classList.add('hidden');
         
+        // Make sure all content is visible
+        document.querySelector('.left-panel').style.overflow = 'visible';
+        
         // Preload the audio
         loadAudio()
             .then(() => {
@@ -330,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle audio errors
     audioElement.onerror = function(event) {
         console.error('Audio playback error:', event);
+        console.error('Audio error details:', audioElement.error);
     };
     
     // Don't auto-start, wait for button click

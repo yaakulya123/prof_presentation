@@ -21,10 +21,10 @@ document.addEventListener('DOMContentLoaded', function() {
         20, // First paragraph duration - done
         28, // Second paragraph duration - done
         24, // Third paragraph duration - done
-        19, // Fourth paragraph duration - done
+        14, // Fourth paragraph duration - done
         19, // Fifth paragraph duration - done
-        17, // Sixth paragraph duration - 
-        15  // Seventh paragraph duration
+        14, // Sixth paragraph duration - 
+        11  // Seventh paragraph duration
     ];
     
     // Total duration for thank you message
